@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Editor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 PDF Editor</h1>
+            <p class="subtitle">Upload, view, and edit PDF documents</p>
+        </header>
+
+        <div class="controls">
+            <div class="file-upload">
+                <label for="pdf-upload" class="btn btn-primary">
+                    📁 Upload PDF
+                    <input type="file" id="pdf-upload" accept="application/pdf" hidden>
+                </label>
+            </div>
+
+            <div class="edit-controls" id="edit-controls" style="display: none;">
+                <button id="add-text-btn" class="btn btn-secondary">✏️ Add Text</button>
+                <button id="add-highlight-btn" class="btn btn-secondary">🖍️ Highlight</button>
+                <button id="clear-edits-btn" class="btn btn-secondary">🗑️ Clear Edits</button>
+                <button id="download-btn" class="btn btn-success">💾 Download PDF</button>
+            </div>
+        </div>
+
+        <div class="pdf-viewer" id="pdf-viewer">
+            <div class="placeholder">
+                <div class="placeholder-icon">📄</div>
+                <p>No PDF loaded</p>
+                <p class="placeholder-hint">Click "Upload PDF" to get started</p>
+            </div>
+        </div>
+
+        <div class="navigation" id="navigation" style="display: none;">
+            <button id="prev-page" class="btn btn-nav">← Previous</button>
+            <span id="page-info">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+            <button id="next-page" class="btn btn-nav">Next →</button>
+        </div>
+
+        <div class="canvas-container" id="canvas-container" style="display: none;">
+            <canvas id="pdf-canvas"></canvas>
+            <canvas id="edit-canvas"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
