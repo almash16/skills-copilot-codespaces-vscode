@@ -66,20 +66,25 @@ function displayPdfInfo(file) {
     const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
     const lastModified = new Date(file.lastModified).toLocaleString();
     
-    pdfInfo.innerHTML = `
-        <div class="info-item">
-            <strong>File Name:</strong> ${file.name}
-        </div>
-        <div class="info-item">
-            <strong>File Size:</strong> ${fileSizeMB} MB (${fileSizeKB} KB)
-        </div>
-        <div class="info-item">
-            <strong>Last Modified:</strong> ${lastModified}
-        </div>
-        <div class="info-item">
-            <strong>Type:</strong> ${file.type}
-        </div>
-    `;
+    // Create elements safely to prevent XSS
+    pdfInfo.innerHTML = '';
+    
+    const items = [
+        { label: 'File Name:', value: file.name },
+        { label: 'File Size:', value: `${fileSizeMB} MB (${fileSizeKB} KB)` },
+        { label: 'Last Modified:', value: lastModified },
+        { label: 'Type:', value: file.type }
+    ];
+    
+    items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'info-item';
+        const strong = document.createElement('strong');
+        strong.textContent = item.label;
+        div.appendChild(strong);
+        div.appendChild(document.createTextNode(' ' + item.value));
+        pdfInfo.appendChild(div);
+    });
 }
 
 // Add text note
@@ -118,44 +123,93 @@ function addAnnotation() {
 
 // Update annotations list
 function updateAnnotationsList() {
-    let html = '';
+    // Clear existing content
+    annotationsList.innerHTML = '';
     
     // Display text notes
     if (textNotes.length > 0) {
-        html += '<div class="annotation-section"><h4>✏️ Text Notes</h4>';
+        const section = document.createElement('div');
+        section.className = 'annotation-section';
+        
+        const heading = document.createElement('h4');
+        heading.textContent = '✏️ Text Notes';
+        section.appendChild(heading);
+        
         textNotes.forEach(note => {
-            html += `
-                <div class="annotation-item">
-                    <div class="annotation-content">${note.content}</div>
-                    <div class="annotation-time">${note.timestamp}</div>
-                    <button class="btn-delete" onclick="deleteNote(${note.id}, 'text')">🗑️ Delete</button>
-                </div>
-            `;
+            const item = document.createElement('div');
+            item.className = 'annotation-item';
+            
+            const content = document.createElement('div');
+            content.className = 'annotation-content';
+            content.textContent = note.content;
+            
+            const time = document.createElement('div');
+            time.className = 'annotation-time';
+            time.textContent = note.timestamp;
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn-delete';
+            deleteBtn.textContent = '🗑️ Delete';
+            deleteBtn.onclick = () => deleteNote(note.id, 'text');
+            
+            item.appendChild(content);
+            item.appendChild(time);
+            item.appendChild(deleteBtn);
+            section.appendChild(item);
         });
-        html += '</div>';
+        
+        annotationsList.appendChild(section);
     }
     
     // Display annotations
     if (annotations.length > 0) {
-        html += '<div class="annotation-section"><h4>📝 Annotations</h4>';
+        const section = document.createElement('div');
+        section.className = 'annotation-section';
+        
+        const heading = document.createElement('h4');
+        heading.textContent = '📝 Annotations';
+        section.appendChild(heading);
+        
         annotations.forEach(ann => {
-            html += `
-                <div class="annotation-item">
-                    <div class="annotation-title"><strong>${ann.title}</strong></div>
-                    <div class="annotation-content">${ann.description}</div>
-                    <div class="annotation-time">${ann.timestamp}</div>
-                    <button class="btn-delete" onclick="deleteNote(${ann.id}, 'annotation')">🗑️ Delete</button>
-                </div>
-            `;
+            const item = document.createElement('div');
+            item.className = 'annotation-item';
+            
+            const title = document.createElement('div');
+            title.className = 'annotation-title';
+            const strong = document.createElement('strong');
+            strong.textContent = ann.title;
+            title.appendChild(strong);
+            
+            const content = document.createElement('div');
+            content.className = 'annotation-content';
+            content.textContent = ann.description;
+            
+            const time = document.createElement('div');
+            time.className = 'annotation-time';
+            time.textContent = ann.timestamp;
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn-delete';
+            deleteBtn.textContent = '🗑️ Delete';
+            deleteBtn.onclick = () => deleteNote(ann.id, 'annotation');
+            
+            item.appendChild(title);
+            item.appendChild(content);
+            item.appendChild(time);
+            item.appendChild(deleteBtn);
+            section.appendChild(item);
         });
-        html += '</div>';
+        
+        annotationsList.appendChild(section);
     }
     
-    if (html === '') {
-        html = '<p class="no-annotations">No annotations yet. Click "Add Text" or "Add Note" to get started.</p>';
+    // Show placeholder if no annotations
+    if (textNotes.length === 0 && annotations.length === 0) {
+        const placeholder = document.createElement('p');
+        placeholder.className = 'no-annotations';
+        placeholder.textContent = 'No annotations yet. Click "Add Text" or "Add Note" to get started.';
+        annotationsList.appendChild(placeholder);
     }
-    
-    annotationsList.innerHTML = html;
 }
 
 // Delete note
@@ -200,6 +254,3 @@ function downloadAnnotations() {
     
     alert('Annotations downloaded successfully!');
 }
-
-// Make deleteNote available globally
-window.deleteNote = deleteNote;
